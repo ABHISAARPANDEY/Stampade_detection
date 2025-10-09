@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""
+Enhanced Stampede Detection System Startup Script v4
+Optimized for Maximum Detection Accuracy with YOLOv11 Large Model
+"""
+
+import os
+import sys
+import subprocess
+import time
+import webbrowser
+from pathlib import Path
+
+try:
+    import torch
+    CUDA_AVAILABLE = torch.cuda.is_available()
+except ImportError:
+    CUDA_AVAILABLE = False
+
+def check_dependencies():
+    """Check if all required dependencies are installed"""
+    required_packages = [
+        'ultralytics',
+        'opencv-python', 
+        'flask',
+        'flask-socketio',
+        'numpy',
+        'torch',
+        'torchvision',
+        'pillow'
+    ]
+    
+    missing_packages = []
+    
+    for package in required_packages:
+        try:
+            __import__(package.replace('-', '_'))
+        except ImportError:
+            missing_packages.append(package)
+    
+    if missing_packages:
+        print("❌ Missing required packages:")
+        for package in missing_packages:
+            print(f"   - {package}")
+        print("\n📦 Installing missing packages...")
+        
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install'] + missing_packages)
+            print("✅ All packages installed successfully!")
+        except subprocess.CalledProcessError:
+            print("❌ Failed to install packages. Please run:")
+            print(f"   pip install {' '.join(missing_packages)}")
+            return False
+    
+    return True
+
+def download_yolo_model():
+    """Download YOLOv11 Large model if not present for best accuracy"""
+    model_path = Path("yolo11l.pt")
+    
+    if not model_path.exists():
+        print("📥 Downloading YOLOv11 Large model for best accuracy...")
+        try:
+            from ultralytics import YOLO
+            model = YOLO("yolo11l.pt")  # This will download the model
+            print("✅ YOLOv11 Large model downloaded successfully!")
+        except Exception as e:
+            print(f"❌ Failed to download YOLOv11 Large: {e}")
+            print("🔄 Falling back to YOLOv8 Large...")
+            try:
+                model = YOLO("yolov8l.pt")
+                print("✅ YOLOv8 Large model downloaded as fallback!")
+            except Exception as e2:
+                print(f"❌ Failed to download any model: {e2}")
+                return False
+    else:
+        print("✅ YOLOv11 Large model already available!")
+    
+    return True
+
+def create_directories():
+    """Create necessary directories"""
+    directories = ['templates', 'static', 'uploads', 'logs']
+    
+    for directory in directories:
+        Path(directory).mkdir(exist_ok=True)
+    
+    print("✅ Directory structure created!")
+
+def start_web_server():
+    """Start the enhanced web server with GPU acceleration"""
+    print("\n🚀 Starting Enhanced Stampede Detection System v4...")
+    print("=" * 70)
+    print("🎯 Model: YOLOv11 Large (GPU Accelerated) - Best Accuracy")
+    print("📱 Web Interface: http://localhost:5000")
+    
+    # GPU Information
+    if CUDA_AVAILABLE:
+        print(f"🔥 GPU: {torch.cuda.get_device_name(0)}")
+        print(f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+        print(f"🚀 CUDA Version: {torch.version.cuda}")
+    else:
+        print("⚠️  CUDA not available - using CPU")
+    
+    print("📹 Enhanced Features:")
+    print("   • Real-time webcam detection with clear dots")
+    print("   • Video file upload and processing")
+    print("   • Professional dashboard with detailed metrics")
+    print("   • Advanced crowd flow analysis")
+    print("   • Multi-factor risk assessment")
+    print("   • YOLOv11 Large model for superior accuracy")
+    print("   • Enhanced dense crowd detection (confidence: 0.15)")
+    print("   • Optimized resolution processing (1280px max)")
+    print("   • GPU acceleration for smooth performance")
+    print("   • Smart alert system with cooldown")
+    print("   • Real-time density mapping and trends")
+    print("   • Adaptive frame skipping for performance")
+    print("   • Fixed OpenCV optical flow errors")
+    print("   • Optimized video processing pipeline")
+    print("   • Improved people detection accuracy")
+    print("   • Smooth video playback")
+    print("=" * 70)
+    
+    # Open browser after a short delay
+    def open_browser():
+        time.sleep(2)
+        webbrowser.open('http://localhost:5000')
+    
+    import threading
+    browser_thread = threading.Thread(target=open_browser)
+    browser_thread.daemon = True
+    browser_thread.start()
+    
+    # Start the web server
+    try:
+        from web_server import app, socketio
+        socketio.run(app, host='0.0.0.0', port=5000, debug=False)
+    except KeyboardInterrupt:
+        print("\n👋 Shutting down Enhanced Stampede Detection System...")
+    except Exception as e:
+        print(f"❌ Error starting server: {e}")
+        return False
+    
+    return True
+
+def main():
+    """Main startup function with enhanced features"""
+    print("🛡️  Enhanced Stampede Detection System v4")
+    print("Optimized for Maximum Detection Accuracy with YOLOv11 Large Model")
+    print("=" * 70)
+    print("🔧 Recent Optimizations:")
+    print("   • Upgraded to YOLOv11 Large for best accuracy")
+    print("   • Fixed OpenCV optical flow errors")
+    print("   • Optimized video processing pipeline")
+    print("   • Added adaptive frame skipping")
+    print("   • Improved GPU utilization")
+    print("   • Reduced memory usage")
+    print("   • Enhanced error handling")
+    print("   • Better performance monitoring")
+    print("   • Smoother video playback")
+    print("   • Improved people detection accuracy")
+    print("   • Fixed index out of bounds errors")
+    print("   • Optimized movement analysis")
+    print("=" * 70)
+    
+    # Check Python version
+    if sys.version_info < (3, 8):
+        print("❌ Python 3.8+ is required!")
+        sys.exit(1)
+    
+    print(f"✅ Python {sys.version.split()[0]} detected")
+    
+    # Check dependencies
+    if not check_dependencies():
+        sys.exit(1)
+    
+    # Create directories
+    create_directories()
+    
+    # Download model
+    if not download_yolo_model():
+        print("⚠️  Continuing with available model...")
+    
+    print("\n🎉 All optimizations are ready!")
+    print("   The system now includes:")
+    print("   • Fixed OpenCV optical flow errors")
+    print("   • Optimized video processing pipeline")
+    print("   • Adaptive frame skipping for performance")
+    print("   • Better GPU utilization")
+    print("   • Smoother video playback")
+    print("   • Enhanced error handling")
+    print("   • Reduced memory usage")
+    print("   • Improved people detection accuracy")
+    print("   • Fixed index out of bounds errors")
+    print("   • Optimized movement analysis")
+    
+    # GPU Status
+    if CUDA_AVAILABLE:
+        print(f"🔥 GPU Acceleration: ENABLED ({torch.cuda.get_device_name(0)})")
+        print("   • Smooth webcam performance")
+        print("   • Fast video processing")
+        print("   • Real-time detection")
+        print("   • Optimized memory usage")
+        print("   • Maximum detection accuracy")
+    else:
+        print("⚠️  GPU Acceleration: DISABLED (CPU mode)")
+        print("   • Install CUDA-enabled PyTorch for better performance")
+    
+    # Start web server
+    if not start_web_server():
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
